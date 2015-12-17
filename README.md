@@ -4,6 +4,45 @@ A Puppet module for managing duplicity
 
 # Module usage
 
+It is fairly straightforward to backup things to Amazon Web. First create a new 
+GPG keypair, then check its key ID using
+
+    $ gpg --list-keys
+
+Once you know the key ID, export both the public and private parts into an 
+ASCII-armored file:
+
+    $ gpg --output <key-id>-public.key --armor --export <key-id>
+    $ gpg --output <key-id>-private.key --armor --export-secret-key <key-id>
+
+Copy both keys to the Puppet fileserver's 'files' directory. Then create a 
+bucket to AWS and, if necessary, also create an EC2 access key pair.
+
+Finally add your GPG and AWS details into common.yaml or similar:
+
+    classes:
+        - duplicity
+        - duplicity::s3
+
+    duplicity::gpg_key_id: 'your_gpg_key_id'
+    duplicity::s3::gpg_passphrase: 'your_gpg_passphrase'
+    duplicity::s3::aws_access_key_id: 'your_aws_access_key_id'
+    duplicity::s3::aws_secret_access_key: 'your_aws_secret_access_key'
+    duplicity::s3::bucket: 'your_bucket_name'
+    duplicity::s3::full_interval: '1W'
+    duplicity::s3::hour: '14'
+    duplicity::s3::minute: '38'
+
+Then add backup definitions as necessary:
+
+    duplicity::s3::backups:
+        local:
+            source: '/var/backups/local'
+        etc:
+            source: '/etc'
+
+For more details refer to the class documentation:
+
 * [Class: duplicity](manifests/init.pp)
 * [Class: duplicity::s3](manifests/s3.pp)
 * [Define: duplicity::backup::s3](manifests/backup/s3.pp)
