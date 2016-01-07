@@ -6,5 +6,14 @@
 #
 class duplicity::prequisites inherits duplicity::params {
     include ::gnupg
-    include ::python::boto
+
+    if $::duplicity::params::use_pip_boto {
+        class { '::python::boto':
+            provider => 'pip',
+            version  => $::duplicity::params::known_good_boto_version,
+        }
+
+    } else {
+        include ::python::boto
+    }
 }
