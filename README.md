@@ -41,6 +41,14 @@ Then add backup definitions as necessary:
         etc:
             source: '/etc'
 
+With the above backup definitions two backups would be generated for 
+server.domain.com:
+
+* server.domain.com-local
+* server.domain.com-etc
+
+Prepending the backup title with $::fqdn helps prevent backup directory clashes.
+
 For more details refer to the class documentation:
 
 * [Class: duplicity](manifests/init.pp)
