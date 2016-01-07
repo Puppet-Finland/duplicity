@@ -61,5 +61,10 @@ class duplicity::s3
     validate_integer($volsize)
     validate_hash($backups)
 
-    create_resources('duplicity::backup::s3', $backups)
+    # Deep merge support for Hiera hashes, with fallback if not using Hiera
+    $hiera_backups = hiera_hash('duplicity::s3::backups', undef)
+    if $hiera_backups == undef { $l_backups = $backups } else { $l_backups = $hiera_backups }
+
+    $backup_defaults = {'ensure' => 'present'}
+    create_resources('duplicity::backup::s3', $l_backups, $backup_defaults)
 }
