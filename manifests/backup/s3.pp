@@ -34,7 +34,8 @@ define duplicity::backup::s3
     $full_interval = undef,
     $hour = undef,
     $minute = undef,
-    $weekday = undef
+    $weekday = undef,
+    $volsize = undef,
 )
 {
     # Ensure that we have everything we need for this define to work
@@ -44,11 +45,12 @@ define duplicity::backup::s3
     $full_remote_path = "${::fqdn}-${title}"
 
     # Allow overriding the defaults in ::duplicity::s3
-    unless $full_interval { $l_full_interval = $::duplicity::s3::full_interval } else { $l_full_interval = $full_interval }
-    unless $bucket        { $l_bucket        = $::duplicity::s3::bucket        } else { $l_bucket        = $bucket        }
-    unless $hour          { $l_hour          = $::duplicity::s3::hour          } else { $l_hour          = $hour          }
-    unless $minute        { $l_minute        = $::duplicity::s3::minute        } else { $l_minute        = $minute        }
-    unless $weekday       { $l_weekday       = $::duplicity::s3::weekday       } else { $l_weekday       = $weekday       }
+    if $full_interval == undef { $l_full_interval = $::duplicity::s3::full_interval } else { $l_full_interval = $full_interval }
+    if $bucket == undef        { $l_bucket        = $::duplicity::s3::bucket        } else { $l_bucket        = $bucket        }
+    if $hour == undef          { $l_hour          = $::duplicity::s3::hour          } else { $l_hour          = $hour          }
+    if $minute == undef        { $l_minute        = $::duplicity::s3::minute        } else { $l_minute        = $minute        }
+    if $weekday == undef       { $l_weekday       = $::duplicity::s3::weekday       } else { $l_weekday       = $weekday       }
+    if $volsize == undef       { $l_volsize       = $::duplicity::s3::volsize       } else { $l_volsize       = $volsize       }
 
     # Get the rest of the values from ::duplicity::s3
     $l_gpg_passphrase = $::duplicity::s3::gpg_passphrase
@@ -67,7 +69,7 @@ define duplicity::backup::s3
     cron { "duplicity-backup-s3-${title}":
         ensure      => $ensure,
         user        => root,
-        command     => "duplicity --gpg-options \"--always-trust\" --full-if-older-than ${l_full_interval} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
+        command     => "duplicity --gpg-options \"--always-trust\" --full-if-older-than ${l_full_interval} --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
         environment => [ 'PATH=/bin:/usr/bin',
                         "PASSPHRASE=${l_gpg_passphrase}",
                         "SIGN_PASSPHRASE=${l_gpg_passphrase}",
@@ -78,5 +80,4 @@ define duplicity::backup::s3
         minute      => $l_minute,
         weekday     => $l_weekday,
     }
-
 }

@@ -43,7 +43,8 @@ class duplicity::s3
     $bucket,
     $encrypt_secret_keyring = '/root/.gnupg',
     $s3_endpoint = 's3.eu-central-1.amazonaws.com',
-    $full_interval = '1W',
+    $full_interval = '2W',
+    $volsize = '250',
     $hour = '23',
     $minute = '18',
     $weekday = '*',
@@ -57,6 +58,7 @@ class duplicity::s3
     validate_string($aws_secret_access_key)
     validate_string($encrypt_secret_keyring)
     validate_string($s3_endpoint)
+    validate_integer($volsize)
     validate_hash($backups)
 
     create_resources('duplicity::backup::s3', $backups)
