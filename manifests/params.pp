@@ -9,7 +9,7 @@ class duplicity::params {
     # they only support old-style S3 URLs. European S3 buckets in particular 
     # only support new style URL. Here we define a known good version of the 
     # Boto library for use with the pip provider.
-    $known_good_boto_version = '2.38'
+    $known_good_boto_version = '2.38.0'
 
     case $::osfamily {
         'RedHat': {
