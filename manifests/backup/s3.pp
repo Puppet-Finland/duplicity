@@ -33,6 +33,13 @@
 #   The minute when the cronjob runs. Defaults to $::duplicity::s3::minute.
 # [*weekday*]
 #   The weekday when the cronjob runs. Defaults to $::duplicity::s3::weekday.
+# [*on_even_weeks_only*]
+#   Only run on every other week. Valid values are true and false (default). 
+#   Because standard cron does not support this use case, a separate hack
+#   is used as a workaround:
+#
+#   expr `date +\%W` % 2 || <duplicity-command>
+#
 # [*monthday*]
 #   The day of the month the cronjob runs. Defaults to 
 #   $::duplicity::s3::monthday.
@@ -48,12 +55,15 @@ define duplicity::backup::s3
     $hour = undef,
     $minute = undef,
     $weekday = undef,
+    $on_even_weeks_only = false,
     $monthday = undef,
     $volsize = undef,
 )
 {
-    # Validate the backup type, if given
+    # Validate parameters
     if $type { validate_re("${type}", '^(full|incremental)$') }
+
+    validate_bool($on_even_weeks_only)
 
     # Ensure that we have everything we need for this define to work
     include ::duplicity::s3
@@ -85,6 +95,13 @@ define duplicity::backup::s3
         $type_params = "--full-if-older-than ${l_full_interval}"
     }
 
+    # Check if the command should only run on even weeks
+    if $on_even_weeks_only {
+        $test_cmd = 'expr `date +\%W` % 2 || '
+    } else {
+        $test_cmd = undef
+    }
+
     # Add a cronjob. Note that "--always-trust" GPG option is needed, or GPG may 
     # refuse to encrypt because it can't determine if the key belongs to the 
     # user running the GPG command. We also need to pipe stdout into /dev/null, as
@@ -94,7 +111,7 @@ define duplicity::backup::s3
     cron { "duplicity-backup-s3-${title}":
         ensure      => $ensure,
         user        => root,
-        command     => "duplicity ${type_params} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
+        command     => "${test_cmd}duplicity ${type_params} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
         environment => [ 'PATH=/bin:/usr/bin',
                         "PASSPHRASE=${l_gpg_passphrase}",
                         "SIGN_PASSPHRASE=${l_gpg_passphrase}",

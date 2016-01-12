@@ -49,19 +49,26 @@ server.domain.com:
 
 Prepending the backup title with $::fqdn helps prevent backup directory clashes.
 
-Manually determining full and incremental backup intervals is also possible:
+Full and incremental backup intervals can also be defined manually. One can also 
+flip a switch to only take (full) backups every other week:
 
     duplicity::s3::backups:
         local-full:
             type: 'full'
             source: '/var/backups/local'
             basename: 'local'
-            weekday: '5'
+            # Full backup every other Saturday
+            weekday: '6'
+            hour: '2'
+            on_even_weeks_only: true
         local-incremental:
             type: 'incremental'
             source: '/var/backups/local'
             basename: 'local'
-            weekday: '*'
+            # Incremental every Mon-Sat
+            weekday: '1-6'
+            hour: '0'
+            minute: '30'
 
 The $basename parameter is used to ensure the that full and incremental backups
 go into the same directory.
