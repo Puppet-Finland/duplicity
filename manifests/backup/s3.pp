@@ -32,7 +32,10 @@
 # [*minute*]
 #   The minute when the cronjob runs. Defaults to $::duplicity::s3::minute.
 # [*weekday*]
-#   The minute when the cronjob runs. Defaults to $::duplicity::s3::weekday.
+#   The weekday when the cronjob runs. Defaults to $::duplicity::s3::weekday.
+# [*monthday*]
+#   The day of the month the cronjob runs. Defaults to 
+#   $::duplicity::s3::monthday.
 #
 define duplicity::backup::s3
 (
@@ -45,6 +48,7 @@ define duplicity::backup::s3
     $hour = undef,
     $minute = undef,
     $weekday = undef,
+    $monthday = undef,
     $volsize = undef,
 )
 {
@@ -63,6 +67,7 @@ define duplicity::backup::s3
     if $hour == undef          { $l_hour          = $::duplicity::s3::hour          } else { $l_hour          = $hour          }
     if $minute == undef        { $l_minute        = $::duplicity::s3::minute        } else { $l_minute        = $minute        }
     if $weekday == undef       { $l_weekday       = $::duplicity::s3::weekday       } else { $l_weekday       = $weekday       }
+    if $monthday == undef      { $l_monthday      = $::duplicity::s3::monthday      } else { $l_monthday      = $monthday      }
     if $volsize == undef       { $l_volsize       = $::duplicity::s3::volsize       } else { $l_volsize       = $volsize       }
 
     # Get the rest of the values from ::duplicity::s3
@@ -99,5 +104,6 @@ define duplicity::backup::s3
         hour        => $l_hour,
         minute      => $l_minute,
         weekday     => $l_weekday,
+        monthday    => $l_monthday,
     }
 }

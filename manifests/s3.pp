@@ -32,6 +32,8 @@
 #   The minute when the cronjob runs. Defaults to '18'.
 # [*weekday*]
 #   The minute when the cronjob runs. Defaults to '*'.
+# [*monthday*]
+#   The day of the month when the cronjob runs. Defaults to '*'.
 # [*backups*]
 #   A hash of duplicity::backup::s3 resources to realize.
 #
@@ -48,6 +50,7 @@ class duplicity::s3
     $hour = '23',
     $minute = '18',
     $weekday = '*',
+    $monthday = '*',
     $backups = {}
 )
 {
