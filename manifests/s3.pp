@@ -23,6 +23,10 @@
 #   
 #   <http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region>
 #
+# [*archive_dir*]
+#   Directory where duplicity will store its caches. The default value in this 
+#   module is /root/.cache/duplicity, which is probably not what you want, 
+#   unless your "/" filesystem is very large.
 # [*full_interval*]
 #   The interval between taking full backups. See duplicity man-page for the
 #   format. Defaults to '1W'.
@@ -45,6 +49,7 @@ class duplicity::s3
     $bucket,
     $encrypt_secret_keyring = '/root/.gnupg',
     $s3_endpoint = 's3.eu-central-1.amazonaws.com',
+    $archive_dir = '/root/.cache/duplicity',
     $full_interval = '2W',
     $volsize = '250',
     $hour = '23',
@@ -61,6 +66,7 @@ class duplicity::s3
     validate_string($aws_secret_access_key)
     validate_string($encrypt_secret_keyring)
     validate_string($s3_endpoint)
+    validate_string($archive_dir)
     validate_integer($volsize)
     validate_hash($backups)
 

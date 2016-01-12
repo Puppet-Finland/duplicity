@@ -38,7 +38,7 @@
 #   Because standard cron does not support this use case, a separate hack
 #   is used as a workaround:
 #
-#   expr `date +\%W` % 2 || <duplicity-command>
+#   expr `date +\%W` \% 2 > /dev/null || <duplicity-command>
 #
 # [*monthday*]
 #   The day of the month the cronjob runs. Defaults to 
@@ -86,6 +86,7 @@ define duplicity::backup::s3
     $l_aws_secret_access_key = $::duplicity::s3::aws_secret_access_key
     $l_encrypt_secret_keyring = $::duplicity::s3::encrypt_secret_keyring
     $l_s3_endpoint = $::duplicity::s3::s3_endpoint
+    $l_archive_dir = $::duplicity::s3::archive_dir
     $l_gpg_key_id = $::duplicity::config::gnupg::gpg_key_id
 
     # Determine backup type (full, incremental, detect automatically)
@@ -97,7 +98,7 @@ define duplicity::backup::s3
 
     # Check if the command should only run on even weeks
     if $on_even_weeks_only {
-        $test_cmd = 'expr `date +\%W` % 2 || '
+        $test_cmd = 'expr `date +\%W` \% 2 || '
     } else {
         $test_cmd = undef
     }
@@ -111,7 +112,7 @@ define duplicity::backup::s3
     cron { "duplicity-backup-s3-${title}":
         ensure      => $ensure,
         user        => root,
-        command     => "${test_cmd}duplicity ${type_params} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
+        command     => "${test_cmd}duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
         environment => [ 'PATH=/bin:/usr/bin',
                         "PASSPHRASE=${l_gpg_passphrase}",
                         "SIGN_PASSPHRASE=${l_gpg_passphrase}",
