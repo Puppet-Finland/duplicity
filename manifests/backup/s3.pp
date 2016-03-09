@@ -98,7 +98,7 @@ define duplicity::backup::s3
 
     # Check if the command should only run on even weeks
     if $on_even_weeks_only {
-        $test_cmd = 'expr `date +\%W` \% 2 || '
+        $test_cmd = 'expr `date +\%W` \% 2 > /dev/null || '
     } else {
         $test_cmd = undef
     }
