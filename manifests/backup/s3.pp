@@ -46,25 +46,20 @@
 #
 define duplicity::backup::s3
 (
-    $source,
-    $type = undef,
-    $bucket = undef,
-    $basename = $title,
-    $ensure = 'present',
-    $full_interval = undef,
-    $hour = undef,
-    $minute = undef,
-    $weekday = undef,
-    $on_even_weeks_only = false,
-    $monthday = undef,
-    $volsize = undef,
+    String                                  $source,
+    String                                  $basename = $title,
+    Enum['present','absent']                $ensure = 'present',
+    Boolean                                 $on_even_weeks_only = false,
+    Optional[Enum['full','incremental']]    $type = undef,
+    Optional[String]                        $bucket = undef,
+    Optional[Variant[Integer,String]   ]    $full_interval = undef,
+    Optional[Variant[String,Integer[0,24]]] $hour = undef,
+    Optional[Variant[String,Integer[0,60]]] $minute = undef,
+    Optional[Variant[String,Integer[0,7]]]  $weekday = undef,
+    Optional[Variant[String,Integer[0,31]]] $monthday = undef,
+    Optional[Integer]                       $volsize = undef,
 )
 {
-    # Validate parameters
-    if $type { validate_re("${type}", '^(full|incremental)$') }
-
-    validate_bool($on_even_weeks_only)
-
     # Ensure that we have everything we need for this define to work
     include ::duplicity::s3
 

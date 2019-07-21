@@ -26,15 +26,12 @@
 #
 class duplicity
 (
-    $gpg_key_id,
-    $manage = true,
-    $ensure = 'present'
+    String                   $gpg_key_id,
+    Boolean                  $manage = true,
+    Enum['present','absent'] $ensure = 'present'
 
 ) inherits duplicity::params
 {
-
-validate_bool($manage)
-validate_re("${ensure}", '^(present|absent)$')
 
 if $manage {
 

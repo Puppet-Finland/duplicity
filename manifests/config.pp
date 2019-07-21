@@ -5,8 +5,8 @@
 #
 class duplicity::config
 (
-    $ensure,
-    $gpg_key_id
+    Enum['present','absent'] $ensure,
+    String                   $gpg_key_id
 )
 {
     class { '::duplicity::config::gnupg':

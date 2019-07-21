@@ -4,7 +4,7 @@
 #
 class duplicity::install
 (
-    $ensure
+    Enum['present','absent'] $ensure
 
 ) inherits duplicity::params
 {

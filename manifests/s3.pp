@@ -43,32 +43,23 @@
 #
 class duplicity::s3
 (
-    $gpg_passphrase,
-    $aws_access_key_id,
-    $aws_secret_access_key,
-    $bucket,
-    $encrypt_secret_keyring = '/root/.gnupg',
-    $s3_endpoint = 's3.eu-central-1.amazonaws.com',
-    $archive_dir = '/root/.cache/duplicity',
-    $full_interval = '2W',
-    $volsize = '250',
-    $hour = '23',
-    $minute = '18',
-    $weekday = '*',
-    $monthday = '*',
-    $backups = {}
+    String                        $gpg_passphrase,
+    String                        $aws_access_key_id,
+    String                        $aws_secret_access_key,
+    String                        $bucket,
+    String                        $encrypt_secret_keyring = '/root/.gnupg',
+    String                        $s3_endpoint = 's3.eu-central-1.amazonaws.com',
+    String                        $archive_dir = '/root/.cache/duplicity',
+    String                        $full_interval = '2W',
+    Integer                       $volsize = 250,
+    Variant[String,Integer[0,24]] $hour = 23,
+    Variant[String,Integer[0,60]] $minute = 18,
+    Variant[String,Integer[0,7]]  $weekday = '*',
+    Variant[String,Integer[0,31]] $monthday = '*',
+    Hash                          $backups = {}
 )
 {
     include ::duplicity
-
-    validate_string($gpg_passphrase)
-    validate_string($aws_access_key_id)
-    validate_string($aws_secret_access_key)
-    validate_string($encrypt_secret_keyring)
-    validate_string($s3_endpoint)
-    validate_string($archive_dir)
-    validate_integer($volsize)
-    validate_hash($backups)
 
     # Deep merge support for Hiera hashes, with fallback if not using Hiera
     $hiera_backups = hiera_hash('duplicity::s3::backups', undef)
