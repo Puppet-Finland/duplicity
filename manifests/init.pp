@@ -28,7 +28,9 @@ class duplicity
 (
     String                   $gpg_key_id,
     Boolean                  $manage = true,
-    Enum['present','absent'] $ensure = 'present'
+    Enum['present','absent'] $ensure = 'present',
+    Optional[String]         $gpg_public_key_source = undef,
+    Optional[String]         $gpg_private_key_source = undef,
 
 ) inherits duplicity::params
 {
@@ -42,8 +44,10 @@ if $manage {
     }
 
     class { '::duplicity::config':
-        ensure     => $ensure,
-        gpg_key_id => $gpg_key_id,
+        ensure                 => $ensure,
+        gpg_key_id             => $gpg_key_id,
+        gpg_public_key_source  => $gpg_public_key_source,
+        gpg_private_key_source => $gpg_private_key_source,
     }
 }
 }
