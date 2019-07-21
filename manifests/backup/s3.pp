@@ -81,6 +81,7 @@ define duplicity::backup::s3
     $l_aws_secret_access_key = $::duplicity::s3::aws_secret_access_key
     $l_encrypt_secret_keyring = $::duplicity::s3::encrypt_secret_keyring
     $l_s3_endpoint = $::duplicity::s3::s3_endpoint
+    $l_european_buckets = $::duplicity::s3::european_buckets
     $l_archive_dir = $::duplicity::s3::archive_dir
     $l_gpg_key_id = $::duplicity::config::gnupg::gpg_key_id
 
@@ -89,6 +90,12 @@ define duplicity::backup::s3
         $type_params = $type
     } else {
         $type_params = "--full-if-older-than ${l_full_interval}"
+    }
+
+    if $l_european_buckets {
+        $european_buckets_params = '--s3-european-buckets --s3-use-new-style'
+    } else {
+        $european_buckets_params = ''
     }
 
     # Check if the command should only run on even weeks
@@ -107,7 +114,7 @@ define duplicity::backup::s3
     cron { "duplicity-backup-s3-${title}":
         ensure      => $ensure,
         user        => root,
-        command     => "${test_cmd}duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
+        command     => "${test_cmd}duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
         environment => [ 'PATH=/bin:/usr/bin',
                         "PASSPHRASE=${l_gpg_passphrase}",
                         "SIGN_PASSPHRASE=${l_gpg_passphrase}",

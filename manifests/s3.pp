@@ -23,6 +23,8 @@
 #   
 #   <http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region>
 #
+# [*european_buckets*]
+#   Bucket is located in Europe. Sets the --s3-european-buckets and --s3-use-new-style for duplicity. You need to set the s3_endpoint to match.
 # [*archive_dir*]
 #   Directory where duplicity will store its caches. The default value in this 
 #   module is /root/.cache/duplicity, which is probably not what you want, 
@@ -49,6 +51,7 @@ class duplicity::s3
     String                        $bucket,
     String                        $encrypt_secret_keyring = '/root/.gnupg',
     String                        $s3_endpoint = 's3.eu-central-1.amazonaws.com',
+    Boolean                       $european_buckets = false,
     String                        $archive_dir = '/root/.cache/duplicity',
     String                        $full_interval = '2W',
     Integer                       $volsize = 250,

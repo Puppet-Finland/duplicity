@@ -87,6 +87,24 @@ also flip a switch to only take (full) backups every other week:
 The $basename parameter is used to ensure the that full and incremental
 backups go into the same directory.
 
+# Note on European S3 buckets
+
+Creating S3 buckets in European datacenters is somewhat harder than using the
+default (us-east-1) region. With some datacenters you may run into various API
+issues, but at least the eu-west-1 datacenter seems to work:
+
+    class { '::duplicity::s3':
+      gpg_passphrase        => 'my-gpg-passphrase',
+      s3_endpoint           => 's3.eu-west-1.amazonaws.com',
+      european_buckets      => true,
+      aws_access_key_id     => 'access-key-id',
+      aws_secret_access_key => 'secret-access-key',
+      bucket                => 'myorganization-duplicity-backups-ireland',
+      full_interval         => '1W',
+      hour                  => 15,
+      minute                => 0,
+    }
+
 For more details refer to the class documentation:
 
 * [Class: duplicity](manifests/init.pp)
