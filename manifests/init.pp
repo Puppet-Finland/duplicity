@@ -35,7 +35,7 @@ class duplicity
 
 if $manage {
 
-    include ::duplicity::prequisites
+    include ::duplicity::prerequisites
 
     class { '::duplicity::install':
         ensure => $ensure,

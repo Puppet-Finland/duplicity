@@ -1,10 +1,11 @@
 #
-# == Class: duplicity::prequisites
+# == Class: duplicity::prerequisites
 #
-# Setup prequisites for duplicity. Note that prequisites are not removed even if 
-# you pass "ensure => absent" to the main class.
+# Setup prerequisites for duplicity. Note that prerequisites are not removed
+# even if you pass "ensure => absent" to the main class.
 #
-class duplicity::prequisites inherits duplicity::params {
+class duplicity::prerequisites inherits duplicity::params {
+
     include ::gnupg
 
     if $::duplicity::params::use_pip_boto {
