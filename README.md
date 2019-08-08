@@ -44,6 +44,8 @@ The add basic settings to a Puppet manifest (e.g. a profile):
       minute                => 0,
     }
 
+If you want to get GPG keys from Hiera use the $gpg_public_key_content and $gpg_private_key_content parameters.
+
 Then add backup definitions as necessary:
 
     ::duplicity::backup::s3 { 'etc':
@@ -85,7 +87,7 @@ also flip a switch to only take (full) backups every other week:
     }
 
 The $basename parameter is used to ensure the that full and incremental
-backups go into the same directory.
+backups go into the same directory on S3.
 
 # Note on European S3 buckets
 
