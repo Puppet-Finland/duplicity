@@ -53,6 +53,7 @@ define duplicity::backup::s3
     Optional[Enum['full','incremental']]    $type = undef,
     Optional[String]                        $bucket = undef,
     Optional[Variant[Integer,String]   ]    $full_interval = undef,
+    Optional[Integer]                       $max_full_backups = undef,
     Optional[Variant[String,Integer[0,24]]] $hour = undef,
     Optional[Variant[String,Integer[0,60]]] $minute = undef,
     Optional[Variant[String,Integer[0,7]]]  $weekday = undef,
@@ -67,13 +68,14 @@ define duplicity::backup::s3
     $full_remote_path = "${::fqdn}-${basename}"
 
     # Allow overriding the defaults in ::duplicity::s3
-    if $full_interval == undef { $l_full_interval = $::duplicity::s3::full_interval } else { $l_full_interval = $full_interval }
-    if $bucket == undef        { $l_bucket        = $::duplicity::s3::bucket        } else { $l_bucket        = $bucket        }
-    if $hour == undef          { $l_hour          = $::duplicity::s3::hour          } else { $l_hour          = $hour          }
-    if $minute == undef        { $l_minute        = $::duplicity::s3::minute        } else { $l_minute        = $minute        }
-    if $weekday == undef       { $l_weekday       = $::duplicity::s3::weekday       } else { $l_weekday       = $weekday       }
-    if $monthday == undef      { $l_monthday      = $::duplicity::s3::monthday      } else { $l_monthday      = $monthday      }
-    if $volsize == undef       { $l_volsize       = $::duplicity::s3::volsize       } else { $l_volsize       = $volsize       }
+    if $full_interval == undef    { $l_full_interval    = $::duplicity::s3::full_interval    } else { $l_full_interval = $full_interval       }
+    if $max_full_backups == undef { $l_max_full_backups = $::duplicity::s3::max_full_backups } else { $l_max_full_backups = $max_full_backups }
+    if $bucket == undef           { $l_bucket           = $::duplicity::s3::bucket           } else { $l_bucket        = $bucket              }
+    if $hour == undef             { $l_hour             = $::duplicity::s3::hour             } else { $l_hour          = $hour                }
+    if $minute == undef           { $l_minute           = $::duplicity::s3::minute           } else { $l_minute        = $minute              }
+    if $weekday == undef          { $l_weekday          = $::duplicity::s3::weekday          } else { $l_weekday       = $weekday             }
+    if $monthday == undef         { $l_monthday         = $::duplicity::s3::monthday         } else { $l_monthday      = $monthday            }
+    if $volsize == undef          { $l_volsize          = $::duplicity::s3::volsize          } else { $l_volsize       = $volsize             }
 
     # Get the rest of the values from ::duplicity::s3
     $l_gpg_passphrase = $::duplicity::s3::gpg_passphrase
@@ -111,19 +113,24 @@ define duplicity::backup::s3
     # "--verbosity error" still produces output on every run. Fortunately duplicity
     # outputs errors into stdout.
     #
-    cron { "duplicity-backup-s3-${title}":
-        ensure      => $ensure,
-        user        => root,
-        command     => "${test_cmd}duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} > /dev/null",
-        environment => [ 'PATH=/bin:/usr/bin',
+    $cron_defaults = {
+        'ensure'      => $ensure,
+        'user'        => root,
+        'hour'        => $l_hour,
+        'minute'      => $l_minute,
+        'weekday'     => $l_weekday,
+        'monthday'    => $l_monthday,
+        'environment' => [ 'PATH=/bin:/usr/bin',
                         "PASSPHRASE=${l_gpg_passphrase}",
                         "SIGN_PASSPHRASE=${l_gpg_passphrase}",
                         "AWS_ACCESS_KEY_ID=${l_aws_access_key_id}",
                         "AWS_SECRET_ACCESS_KEY=${l_aws_secret_access_key}"
                       ],
-        hour        => $l_hour,
-        minute      => $l_minute,
-        weekday     => $l_weekday,
-        monthday    => $l_monthday,
+    }
+
+    # This rather horrible command-line first takes a backup with duplicity and if that succeeds, removes obsolete backups
+    cron { "duplicity-backup-s3-${title}":
+        command => "${test_cmd}(duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} && duplicity remove-all-but-n-full ${l_max_full_backups} --force --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path}) > /dev/null",
+        *       => $cron_defaults,
     }
 }

@@ -75,6 +75,7 @@ also flip a switch to only take (full) backups every other week:
       weekday            => 6,
       hour               => 2,
       on_even_weeks_only => true
+      max_full_backups   => 4,
     
     ::duplicity::backup::s3 { 'local-incremental':
       type     => 'incremental',
@@ -85,6 +86,9 @@ also flip a switch to only take (full) backups every other week:
       hour     => 0,
       minute   => 30,
     }
+
+The $max_full_backups parameter tells duplicity to only keep around that many
+full backups and their associated incrementals.
 
 The $basename parameter is used to ensure the that full and incremental
 backups go into the same directory on S3.

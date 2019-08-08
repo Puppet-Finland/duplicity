@@ -32,6 +32,9 @@
 # [*full_interval*]
 #   The interval between taking full backups. See duplicity man-page for the
 #   format. Defaults to '1W'.
+# [*max_full_backups*]
+#   Retain this many full backups. Passed on to "duplicity remove-all-but-n-full"
+#   command. 
 # [*hour*]
 #   The hour when the cronjob runs. Defaults to '23'.
 # [*minute*]
@@ -54,6 +57,7 @@ class duplicity::s3
     Boolean                       $european_buckets = false,
     String                        $archive_dir = '/root/.cache/duplicity',
     String                        $full_interval = '2W',
+    Integer                       $max_full_backups = 10,
     Integer                       $volsize = 250,
     Variant[String,Integer[0,24]] $hour = 23,
     Variant[String,Integer[0,60]] $minute = 18,
