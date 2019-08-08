@@ -130,7 +130,7 @@ define duplicity::backup::s3
 
     # This rather horrible command-line first takes a backup with duplicity and if that succeeds, removes obsolete backups
     cron { "duplicity-backup-s3-${title}":
-        command => "sh -c '${test_cmd}(duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} && duplicity remove-all-but-n-full ${l_max_full_backups} --force --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path}) > /dev/null'",
+        command => "sh -c '${test_cmd}(duplicity ${type_params} --archive-dir=${l_archive_dir} --name=${full_remote_path} --gpg-options \"--always-trust\" --volsize ${l_volsize} --encrypt-key ${l_gpg_key_id} --sign-key ${l_gpg_key_id} --verbosity error ${european_buckets_params} ${source} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path} && duplicity remove-all-but-n-full ${l_max_full_backups} --force --verbosity error ${european_buckets_params} s3://${l_s3_endpoint}/${l_bucket}/${full_remote_path}) > /dev/null'",
         *       => $cron_defaults,
     }
 }
